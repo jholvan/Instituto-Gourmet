@@ -11,26 +11,35 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="icon" href="imagens/favicon1.png" type="imagens/favicon1.png">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
   <style>
     body {
       background: #fff;
       min-height: 100vh;
     }
 
+    .logo-canto {
+      position: absolute;
+      top: 18px;
+      right: 24px;
+      width: 80px;
+      height: auto;
+      z-index: 10;
+    }
+
     .login-glass {
       background: rgba(255, 255, 255, 0.92);
-      box-shadow: 0 8px 40px 0 rgba(16, 185, 129, 0.10), 0 1.5px 8px 0 rgba(0, 0, 0, 0.08);
+      box-shadow: 0 8px 40px 0 rgba(168, 185, 16, 0.1), 0 1.5px 8px 0 rgba(0, 0, 0, 0.08);
       border: 1.5px solid #e5e7eb;
     }
 
     .login-input:focus {
-      border-color: #16a34a;
-      box-shadow: 0 0 0 1.5px #16a34a44;
+      border-color: #ffc700;
+      box-shadow: 0 0 0 1.5px #4d2411;
     }
 
     .gradient-bg {
-      background: linear-gradient(135deg, #e8ff1a 0%, #916422 100%);
+      background-color: #ffc700;
     }
 
     .card-shadow {
@@ -93,8 +102,7 @@
     <div class="login-glass p-8 rounded-2xl max-w-md w-full shadow-xl flex flex-col items-center relative">
       <!-- Logo do Grau Educacional -->
       <div class="flex flex-col items-center mb-7 w-full">
-        <img src="ig.png" alt="Instituto Gourmet"
-          class="h-16 sm:h-20 w-auto bg-white rounded-xl shadow-lg p-2 mb-2">
+        <img src="ig.png" alt="Instituto Gourmet" class="h-16 sm:h-20 w-auto bg-white rounded-xl shadow-lg p-2 mb-2">
         <h2 class="text-2xl font-extrabold text-gray-900 tracking-tight mt-2">Sistema de Proposta de Bolsas</h2>
         <p class="text-yellow-900 text-xs font-semibold">Acesso interno</p>
       </div>
@@ -136,25 +144,24 @@
         <div
           class="gradient-bg text-white rounded-t-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div class="flex-1 flex items-center gap-4">
-            <img src="ig.png" alt="Instituto Gourmet"
-              class="h-16 w-auto bg-white rounded-lg p-1 shadow-md">
+            <img src="ig.png" alt="Instituto Gourmet" class="h-16 w-auto bg-white rounded-lg p-1 shadow-md">
             <div>
               <h1 class="text-3xl font-bold text-white">Instituto Gourmet Pinheirinho</h1>
               <p class="text-white-100">Sistema de Proposta de Bolsas</p>
               <div class="flex gap-2">
-                <button onclick="abrirVideo('videos/enfermagem.mp4', 'Enfermagem')"
+                <button onclick="abrirVideo('videos/enfermagem.mp4', 'Gastronomia')"
                   class="flex flex-col items-center hover:bg-green-200 bg-white/90 rounded-lg px-3 py-2 focus:outline-none transition">
                   <span class="text-xs font-semibold text-green-900">Gastronomia</span>
                 </button>
-                <button onclick="abrirVideo('videos/radiologia.mp4', 'Radiologia')"
+                <button onclick="abrirVideo('videos/radiologia.mp4', 'Confeitaria')"
                   class="flex flex-col items-center hover:bg-green-200 bg-white/90 rounded-lg px-3 py-2 focus:outline-none transition">
                   <span class="text-xs font-semibold text-green-900">Chef Mix</span>
                 </button>
-                <button onclick="abrirVideo('videos/informatica.mp4', 'Informática')"
+                <button onclick="abrirVideo('videos/informatica.mp4', 'Doceria Gourmet')"
                   class="flex flex-col items-center hover:bg-green-200 bg-white/90 rounded-lg px-3 py-2 focus:outline-none transition">
                   <span class="text-xs font-semibold text-green-900">Doceria Gourmet</span>
                 </button>
-                <button onclick="abrirVideo('videos/administracao.mp4', 'Administração')"
+                <button onclick="abrirVideo('videos/administracao.mp4', 'Chef Mix')"
                   class="flex flex-col items-center hover:bg-green-200 bg-white/90 rounded-lg px-3 py-2 focus:outline-none transition">
                   <span class="text-xs font-semibold text-green-900">Confeitaria</span>
                 </button>
@@ -204,6 +211,11 @@
                 class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded px-6 py-2 transition-colors duration-200 flex items-center gap-2">
                 <i class="fas fa-broom"></i> Limpar
               </button>
+            </div>
+            <div id="alertaUltimaBolsa"
+              class="bg-yellow-300 border-l-4 border-yellow-500 text-red-800 p-4 mb-4 rounded-lg shadow-md font-bold text-center text-lg animate-pulse"
+              style="display:none;">
+              🚨 AVISO: ÚLTIMA BOLSA DISPONÍVEL! 🚨
             </div>
             <div id="resultado" class="mb-4" role="region" aria-live="polite"></div>
             <div id="areaDesconto"></div>
@@ -424,6 +436,7 @@
       const turmaSelect = document.getElementById("turma");
 
       resultadoDiv.innerHTML = "";
+      document.getElementById("alertaUltimaBolsa").style.display = "none";
       document.getElementById("timer").innerHTML = "";
       clearInterval(countdownInterval);
       areaDesconto.innerHTML = "";
@@ -560,17 +573,13 @@
       <div class="mt-4">
         <label for="desconto" class="font-semibold mb-1 block">Escolha o desconto:</label>
         <select id="desconto" onchange="mostrarCampoSenha()" class="w-full border rounded px-3 py-2 mb-2">
-          <option value="10">10%</option>
-          <option value="15">15%</option>
-          <option value="20">20%(BOLETO BANCÁRIO)</option>
-          <option value="25">25%(CARTÃO RECORRENTE)</option>
-          <option value="30">30%(CARTÃO DE CRÉDITO)</option>
-          <option value="35">35%(À VISTA)</option>
+          <option value="60">BOLETO SEM DESCONTO</option>
+          <option value="70">BOLSISTA</option>
         </select>
       </div>
       <div id="senhaContainer" style="display:none;" class="mt-2">
-        <label for="senhaCoordenador" class="font-semibold mb-1 block">Senha do Coordenador:</label>
-        <input type="password" id="senhaCoordenador" class="w-full border rounded px-3 py-2" placeholder="Digite a senha do coordenador" />
+        <label for="senhaCoordenador" class="font-semibold mb-1 block">Código Cliente:</label>
+        <input type="password" id="senhaCoordenador" class="w-full border rounded px-3 py-2" placeholder="Digite o Código do Cliente" />
       </div>
       <button type="button" class="bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded px-6 py-2 w-full mt-4 transition-colors duration-200" onclick="mostrarDelayBolsa()">Gerar Bolsa de Desconto</button>
     `;
@@ -580,7 +589,7 @@
     function mostrarCampoSenha() {
       const descontoSelecionado = document.getElementById("desconto").value;
       const senhaDiv = document.getElementById("senhaContainer");
-      if (descontoSelecionado === "25" || descontoSelecionado === "30") {
+      if (descontoSelecionado === "70" || descontoSelecionado === "75") {
         senhaDiv.style.display = "block";
       } else {
         senhaDiv.style.display = "none";
@@ -594,12 +603,12 @@
       const resultadoDiv = document.getElementById("resultado");
       const areaDesconto = document.getElementById("areaDesconto");
       areaDesconto.innerHTML = "";
-      resultadoDiv.innerHTML += `
-        <div class="flex items-center gap-2 text-blue-600 font-semibold mt-2">
-          <i class="fas fa-spinner fa-spin"></i>
-          Conectando aos servidores...
-        </div>
-      `;
+      resultadoDiv.innerHTML = `
+  <div class="flex items-center gap-2 text-blue-600 font-semibold mt-2">
+    <i class="fas fa-spinner fa-spin"></i>
+    Conectando aos servidores...
+  </div>
+`;
       setTimeout(() => {
         resultadoDiv.innerHTML = resultadoDiv.innerHTML.replace(/<div class="flex items-center gap-2 text-blue-600 font-semibold mt-2">[\s\S]*?<\/div>/, "");
         gerarBolsaDesconto(descontoValor, senhaValor);
@@ -663,7 +672,7 @@
         );
       }
 
-      if ((descontoStr === "25" || descontoStr === "30") && !senhaCoordenadorValida(senhaCoordenador)) {
+      if ((descontoStr === "70" || descontoStr === "75") && !senhaCoordenadorValida(senhaCoordenador)) {
         resultadoDiv.innerHTML += `
     <div class="flex items-center gap-2 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mt-2" role="alert">
       <i class="fas fa-lock"></i>
@@ -671,6 +680,11 @@
     </div>`;
         areaDesconto.innerHTML = "";
         return;
+      }
+      if (descontoStr === "70") {
+        document.getElementById("alertaUltimaBolsa").style.display = "block";
+      } else {
+        document.getElementById("alertaUltimaBolsa").style.display = "none";
       }
 
       resumoParcelasProgressivas = [];
@@ -776,41 +790,111 @@
 
       const idCheckboxValorCheio = "mostrarValorCheioProposta";
       const resumoHTML = `
-<div id="resumoProposta" style="background:#fef9c3;" class="mt-6 bg-yellow-50 border border-yellow-300 rounded-lg p-6 relative fade-in">
-        <div class="absolute top-2 right-2 text-2xl" style="color:#eab308;"><i class="fas fa-certificate"></i></div>
-        <h2 class="text-2xl font-bold mb-2" style="color:#111;">Resumo da Proposta</h2>
-        <div class="mb-2" style="color:#111;">
-            <b>Cliente:</b> ${nomeCliente} <br>
-            <b>Nº Cliente:</b> ${numeroCliente} <br>
-            <b>Curso:</b> ${cursoSelecionado} <br>
-            <b>Turno:</b> ${turnoSelecionado} <br>
-            <b>Início da turma:</b> ${resumoInicioTurma} <br>
-            <b>Horário:</b> ${resumoHorario || '-'} <br>
-            <b>Dias de aula:</b> ${resumoDiasAula}
-        </div>
-        <div class="mb-2" style="color:#111;">
-            <label class="inline-flex items-center mb-1 select-none cursor-pointer">
-                <input type="checkbox" id="${idCheckboxValorCheio}" class="mr-2 accent-yellow-500" onchange="toggleValorCheioResumo()" />
-            </label>
-            <span id="descontoTotalResumo">
-                <b>Desconto total:</b> <span style="color:#15803d;font-weight:bold">R$ ${valorDescontoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-            </span>
-            <span class="valor-cheio-toggle" style="display:none;">
-                <br>
-                <b>Valor cheio:</b> <span class="valor-riscado">R$ ${valorCheio.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-                <br>
-                <b>Com desconto:</b> <span style="color:#15803d;font-weight:bold">R$ ${valorFinal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-            </span>
-            <br>
-            <b>Desconto percentual:</b> <span style="color:#15803d;font-weight:bold">${descontoStr}%</span><br>
-            ${resumoParcelamentoFixo}
-            ${tabelaParcelasAgrupadaHTML}
-            ${resumoAlertaProgressivo}
-            <br>
-            <span style="font-weight:bold; color:#444; display:inline-block; margin-top:12px;">
-                ${usuarioLogado ? usuarioLogado.cargo + ': ' + usuarioLogado.nome : ''}
-            </span>
-        </div>
+<div id="resumoProposta" 
+     class="mt-6 bg-yellow-50 border border-yellow-300 rounded-lg p-6 relative fade-in" 
+     style="background:#fef9c3; font-size: 1.1rem; line-height: 1.6;">
+
+  <img src="favicon1.png" class="logo-canto" alt="Logo">
+
+  <!-- Título -->
+  <h2 class="text-2xl font-bold mb-4" style="color:#111;">
+    Resumo da Proposta
+  </h2>
+
+  <!-- Dados do cliente -->
+  <div class="mb-4" style="color:#111; font-size: 1.1rem;">
+    <b>Cliente:</b> ${nomeCliente} <br>
+    <b>Nº Cliente:</b> ${numeroCliente} <br>
+    <b>Curso:</b> ${cursoSelecionado} <br>
+    <b>Turno:</b> ${turnoSelecionado} <br>
+    <b>Início da turma:</b> ${resumoInicioTurma} <br>
+    <b>Horário:</b> ${resumoHorario || '-'} <br>
+    <b>Dias de aula:</b> ${resumoDiasAula}
+  </div>
+     <br>
+    <b>Bolsa Liberada de:</b> 
+    <span style="color:#15803d;font-weight:bold">${descontoStr}%</span>
+    <br>
+
+  <!-- Matrícula -->
+  <div class="mb-4">
+    <strong style="font-size: 1.3rem;">Matrícula:</strong>
+    <ul style="margin-top: 0.5em; font-size: 1.2rem;">
+      <li>
+        <span style="color: red; text-decoration: line-through; padding: 0 12px;">de R$399,00</span>
+        <span style="color: green; font-weight: bold;">por apenas R$199,00</span>
+      </li>
+    </ul>
+  </div>
+
+  ${resumoParcelamentoFixo}
+  ${tabelaParcelasAgrupadaHTML}
+
+  <!-- Valores e descontos -->
+<div class="mb-4" style="color:#111;">
+
+  <label class="inline-flex items-start mb-1 select-none cursor-pointer">
+    <!-- Checkbox -->
+    <input type="checkbox" 
+           id="${idCheckboxValorCheio}" 
+           class="mr-2 mt-1 accent-yellow-500" 
+           onchange="toggleValorCheioResumo()" />
+
+    <!-- Todo o conteúdo dentro do label -->
+    <div>
+      <!-- Desconto total -->
+      <div class="desconto-total">
+        <b>Desconto total:</b> 
+        <span style="color:#15803d; font-weight:bold">
+          R$ ${valorDescontoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+        </span>
+      </div>
+
+      <!-- Valores detalhados (mostra ao marcar) -->
+      <div class="valor-cheio-toggle" style="display:none; margin-top: 6px;">
+        <b>Valor cheio:</b> 
+        <span class="valor-riscado">
+          R$ ${valorCheio.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+        </span>
+        <br>
+        <b>Com desconto:</b> 
+        <span style="color:#15803d; font-weight:bold">
+          R$ ${valorFinal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+        </span>
+      </div>
+    </div>
+  </label>
+
+</div>
+
+  <!-- Benefícios -->
+  <div class="mb-4">
+    <strong>Benefícios:</strong>
+    <ul style="margin-top: 0.5em; font-size: 1.05rem;">
+      <li>
+        Insumos de 
+        <span style="color: red; text-decoration: line-through; padding: 0 12px;">R$124,00 mensal</span>
+        <span style="color: green; font-weight: bold;">por R$0,00 mensal</span>
+      </li>
+      <li>
+        Acesso ao Chefia de 
+        <span style="color: red; text-decoration: line-through; padding: 0 12px;">R$25,00 mensal</span>
+        <span style="color: green; font-weight: bold;">por R$0,00 mensal</span>
+      </li>
+      <li>
+        Certificado de 
+        <span style="color: red; text-decoration: line-through; padding: 0 12px;">R$199,00</span>
+        <span style="color: green; font-weight: bold;">por R$0,00</span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Assinatura -->
+  <span style="font-weight:bold; color:#444; display:inline-block; margin-top:12px;">
+    ${usuarioLogado ? usuarioLogado.cargo + ': ' + usuarioLogado.nome : ''}
+  </span>
+  
+</div>
         <div class="mb-2" style="color:#111;">
             <b>Proposta válida até:</b> <span style="color:#b91c1c;font-weight:bold">${dataEncerramentoBR}</span>
         </div>
@@ -823,9 +907,6 @@
             </button>
         </div>
         <div class="text-xs" style="color:#a16207;margin-top:8px;">*Proposta válida por tempo limitado. Válida somente para o cliente informado.</div>
-        <div class="flex justify-end mt-4">
-            <img src="ig.png" alt="Logo Instituto Gourmet" style="height:40px;width:auto;background:white;padding:4px;border-radius:6px;box-shadow:0 2px 8px #0001;">
-        </div>
     </div>
 `;
       lastResumoTexto = `
@@ -876,6 +957,7 @@ Proposta válida até: ${dataEncerramentoBR}
           timerDiv.innerHTML = `<i class="fas fa-hourglass-end"></i> Proposta expirada! Gere novamente para continuar.`;
           document.getElementById("resultado").innerHTML = "";
           document.getElementById("areaDesconto").innerHTML = "";
+          document.getElementById("alertaUltimaBolsa").style.display = "none";
         }
       }, 1000);
       function atualizarTimer() {
@@ -1021,7 +1103,7 @@ Proposta válida até: ${dataEncerramentoBR}
       } catch (e) { }
       return `
       <div id="resumoPropostaImagem" style="background:#fff; color:#111; font-family:sans-serif; border-radius:12px; padding:24px; border:2px solid #fde047; width:100%; max-width:520px; box-sizing:border-box; position:relative;">
-        <div style="position:absolute;top:16px;right:24px;font-size:28px;color:#facc15;"><i class="fas fa-certificate"></i></div>
+        <img src="ig.png" class="logo-canto" alt="Logo">
         <h2 style="font-size:1.5em;font-weight:700;margin-bottom:8px;color:#111;">Resumo da Proposta</h2>
         <div style="margin-bottom:10px;color:#111;line-height:1.7;">
           <b>Cliente:</b> ${nomeCliente} <br>
@@ -1033,17 +1115,7 @@ Proposta válida até: ${dataEncerramentoBR}
           <b>Dias de aula:</b> ${diasAula}
         </div>
         <div style="margin-bottom:10px;">
-          <span>
-            <b>Desconto total:</b> <span style="color:#15803d;font-weight:bold;">R$ ${valorDescontoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-          </span>
-          ${mostrarValCheio ? `
-          <br>
-          <b>Valor cheio:</b> <span style="color:#e11d48;text-decoration:line-through;">R$ ${valorCheio.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-          <br>
-          <b>Com desconto:</b> <span style="color:#15803d;font-weight:bold">R$ ${valorFinal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-          ` : ''}
-          <br>
-          <b>Desconto percentual:</b> <span style="color:#15803d;font-weight:bold;">${descontoStr}%</span><br>
+          <b>Bolsa Liberada de:</b> <span style="color:#15803d;font-weight:bold;">${descontoStr}%</span><br>
           <div style="margin-bottom:8px;">
             <b>Parcelamento fixo:</b><br>
             <span style="color:#166534;font-weight:600">${parcelas}x</span> de <span style="color:#166534;font-weight:bold">R$ ${valorParcelaDesconto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span> (com desconto)<br>
@@ -1068,6 +1140,7 @@ Proposta válida até: ${dataEncerramentoBR}
       document.getElementById("formDesconto").reset();
       document.getElementById("resultado").innerHTML = "";
       document.getElementById("areaDesconto").innerHTML = "";
+      document.getElementById("alertaUltimaBolsa").style.display = "none";
       document.getElementById("timer").innerHTML = "";
       clearInterval(countdownInterval);
       resumoParcelasProgressivas = [];
